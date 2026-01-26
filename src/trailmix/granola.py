@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-
 CREDENTIALS_PATH = Path.home() / "Library/Application Support/Granola/supabase.json"
 API_BASE = "https://api.granola.ai"
 
@@ -67,6 +66,9 @@ class GranolaClient:
                 },
             )
 
+            if not isinstance(result, dict):
+                break
+
             docs = result.get("docs", [])
             if not docs:
                 break
@@ -82,9 +84,12 @@ class GranolaClient:
     def get_transcript(self, document_id: str) -> list[dict]:
         """Fetch transcript for a document."""
         try:
-            return self._request(
+            result = self._request(
                 "/v1/get-document-transcript",
                 {"document_id": document_id},
             )
+            if isinstance(result, list):
+                return result
+            return []
         except Exception:
             return []

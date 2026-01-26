@@ -3,11 +3,10 @@
 import json
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 from .granola import GranolaClient
-
 
 TRAILMIX_DIR = ".trailmix"
 MANIFEST_FILE = "manifest.json"
@@ -363,10 +362,7 @@ def needs_sync(doc: dict, manifest: dict) -> bool:
 
     # Updated document
     last_synced = doc_manifest.get("updated_at")
-    if updated_at and last_synced and updated_at > last_synced:
-        return True
-
-    return False
+    return bool(updated_at and last_synced and updated_at > last_synced)
 
 
 def sync(repo_root: Path, dry_run: bool = False) -> SyncResult:
@@ -384,7 +380,7 @@ def sync(repo_root: Path, dry_run: bool = False) -> SyncResult:
         doc_id = doc.get("id")
         title = doc.get("title", "Untitled")
 
-        if not needs_sync(doc, manifest):
+        if not doc_id or not needs_sync(doc, manifest):
             skipped += 1
             continue
 
@@ -412,7 +408,7 @@ def sync(repo_root: Path, dry_run: bool = False) -> SyncResult:
         manifest["documents"][doc_id] = {
             "title": title,
             "updated_at": doc.get("updated_at"),
-            "synced_at": datetime.utcnow().isoformat() + "Z",
+            "synced_at": datetime.now(UTC).isoformat(),
         }
 
         if is_new:
