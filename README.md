@@ -10,14 +10,20 @@ uv tool install /path/to/trailmix
 
 ## Usage
 
-Initialize a new meetings repo:
+Initialize trailmix (creates meetings directory and saves config):
 
 ```bash
-mkdir ~/meetings && cd ~/meetings
+trailmix init ~/meetings
+```
+
+Or initialize in current directory:
+
+```bash
+cd ~/meetings
 trailmix init
 ```
 
-Sync your Granola meetings:
+Sync your Granola meetings (works from any directory):
 
 ```bash
 trailmix sync
@@ -27,6 +33,20 @@ Check what would be synced:
 
 ```bash
 trailmix status
+```
+
+Show current configuration:
+
+```bash
+trailmix config
+```
+
+## Configuration
+
+Config is stored at `~/.config/trailmix/config.toml`:
+
+```toml
+meetings_dir = "/Users/you/meetings"
 ```
 
 ## Structure

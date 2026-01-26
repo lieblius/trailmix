@@ -19,18 +19,6 @@ class SyncResult:
     skipped: int
 
 
-def find_repo_root(start: Path | None = None) -> Path | None:
-    """Find the trailmix repo root by looking for .trailmix/ directory."""
-    current = start or Path.cwd()
-
-    while current != current.parent:
-        if (current / TRAILMIX_DIR).is_dir():
-            return current
-        current = current.parent
-
-    return None
-
-
 def load_manifest(repo_root: Path) -> dict:
     """Load the sync manifest."""
     manifest_path = repo_root / TRAILMIX_DIR / MANIFEST_FILE

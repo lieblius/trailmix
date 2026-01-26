@@ -31,9 +31,11 @@ integration:
     #!/usr/bin/env bash
     set -e
     rm -rf /tmp/trailmix-test
+    rm -rf ~/.config/trailmix
     mkdir /tmp/trailmix-test
-    uv run trailmix init /tmp/trailmix-test
-    cd /tmp/trailmix-test && uv run --directory {{justfile_directory()}} trailmix sync --dry-run
+    echo "y" | uv run trailmix init /tmp/trailmix-test
+    uv run trailmix config
+    uv run trailmix sync --dry-run
 
 # Install dev dependencies
 install:

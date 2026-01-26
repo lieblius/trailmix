@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Sync Granola meeting notes to a git repo"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["tomli-w"]
 
 [project.scripts]
 trailmix = "trailmix.cli:main"
