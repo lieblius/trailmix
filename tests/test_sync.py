@@ -1,9 +1,9 @@
 """Tests for sync module."""
 
 from trailmix.sync import (
+    format_transcript,
     prosemirror_to_markdown,
     sanitize_filename,
-    format_transcript,
 )
 
 
@@ -87,15 +87,17 @@ def test_format_transcript():
         {
             "start_timestamp": "2026-01-21T16:39:37.784Z",
             "text": "Hello there",
+            "source": "system",
         },
         {
             "start_timestamp": "2026-01-21T16:39:45.000Z",
             "text": "How are you",
+            "source": "microphone",
         },
     ]
     result = format_transcript(entries)
-    assert "[16:39:37] Hello there" in result
-    assert "[16:39:45] How are you" in result
+    assert "[16:39:37] **Them:** Hello there" in result
+    assert "[16:39:45] **Me:** How are you" in result
 
 
 def test_format_transcript_empty():

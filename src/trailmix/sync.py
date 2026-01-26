@@ -141,14 +141,16 @@ def format_transcript(entries: list[dict]) -> str:
     for entry in sorted(entries, key=lambda x: x.get("start_timestamp", "")):
         ts = entry.get("start_timestamp", "")
         text = entry.get("text", "").strip()
+        source = entry.get("source", "")
 
         if ts and text:
+            speaker = "Me" if source == "microphone" else "Them"
             try:
                 dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
                 time_str = dt.strftime("%H:%M:%S")
-                lines.append(f"[{time_str}] {text}")
+                lines.append(f"[{time_str}] **{speaker}:** {text}")
             except ValueError:
-                lines.append(text)
+                lines.append(f"**{speaker}:** {text}")
 
     return "\n\n".join(lines)
 
@@ -163,11 +165,10 @@ def sanitize_filename(title: str) -> str:
 
 def get_document_date(doc: dict) -> str:
     """Extract date from document."""
-    # Prefer calendar event start time
     event = doc.get("google_calendar_event")
     if event and event.get("start"):
         start = event["start"]
-        # start can be a dict with dateTime key or a string
+        # Granola API returns start as either a dict with dateTime key or a string
         if isinstance(start, dict):
             start = start.get("dateTime", "")
         if start:
@@ -177,7 +178,6 @@ def get_document_date(doc: dict) -> str:
             except ValueError:
                 pass
 
-    # Fall back to created_at
     created_at = doc.get("created_at", "")
     if created_at:
         try:
@@ -237,16 +237,11 @@ def write_note_file(repo_root: Path, doc: dict) -> Path:
     filepath = date_dir / filename
 
     parts = []
-
-    # Frontmatter
     parts.append(build_frontmatter(doc))
     parts.append("")
-
-    # Title
     parts.append(f"# {title}")
     parts.append("")
 
-    # Notes from panel
     panel = doc.get("last_viewed_panel")
     if panel and panel.get("content"):
         notes_md = prosemirror_to_markdown(panel["content"])
@@ -273,16 +268,11 @@ def write_transcript_file(repo_root: Path, doc: dict, transcript: list[dict]) ->
     filepath = date_dir / filename
 
     parts = []
-
-    # Frontmatter
     parts.append(build_frontmatter(doc))
     parts.append("")
-
-    # Title
     parts.append(f"# {title}")
     parts.append("")
 
-    # Transcript only
     if transcript:
         transcript_md = format_transcript(transcript)
         if transcript_md:
@@ -308,16 +298,11 @@ def write_combined_file(repo_root: Path, doc: dict, transcript: list[dict]) -> P
     filepath = date_dir / filename
 
     parts = []
-
-    # Frontmatter
     parts.append(build_frontmatter(doc))
     parts.append("")
-
-    # Title
     parts.append(f"# {title}")
     parts.append("")
 
-    # Notes from panel
     panel = doc.get("last_viewed_panel")
     if panel and panel.get("content"):
         notes_md = prosemirror_to_markdown(panel["content"])
@@ -325,7 +310,6 @@ def write_combined_file(repo_root: Path, doc: dict, transcript: list[dict]) -> P
             parts.append(notes_md)
             parts.append("")
 
-    # Transcript
     if transcript:
         transcript_md = format_transcript(transcript)
         if transcript_md:
@@ -350,17 +334,14 @@ def needs_sync(doc: dict, manifest: dict) -> bool:
     if not doc_id:
         return False
 
-    # Skip deleted docs
     if doc.get("deleted_at"):
         return False
 
     doc_manifest = manifest.get("documents", {}).get(doc_id)
 
-    # New document
     if not doc_manifest:
         return True
 
-    # Updated document
     last_synced = doc_manifest.get("updated_at")
     return bool(updated_at and last_synced and updated_at > last_synced)
 
@@ -393,15 +374,12 @@ def sync(repo_root: Path, dry_run: bool = False) -> SyncResult:
                 updated_docs.append(title)
             continue
 
-        # Fetch transcript
         transcript = client.get_transcript(doc_id)
 
-        # Write files
         write_note_file(repo_root, doc)
         write_transcript_file(repo_root, doc, transcript)
         write_combined_file(repo_root, doc, transcript)
 
-        # Update manifest
         if "documents" not in manifest:
             manifest["documents"] = {}
 

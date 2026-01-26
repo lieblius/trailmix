@@ -25,18 +25,15 @@ def cmd_init(args: argparse.Namespace) -> int:
         print(f"Already initialized: {path}")
         return 1
 
-    # Create directories
     trailmix_dir.mkdir()
     notes_dir.mkdir()
     transcripts_dir.mkdir()
     combined_dir.mkdir()
 
-    # Initialize git if not already a repo
     if not is_git_repo(path):
         init_repo(path)
         print(f"Initialized git repo: {path}")
 
-    # Create .gitignore
     gitignore = path / ".gitignore"
     if not gitignore.exists():
         gitignore.write_text("# Add patterns to ignore\n")
@@ -74,7 +71,6 @@ def cmd_sync(args: argparse.Namespace) -> int:
         print(f"Sync failed: {e}")
         return 1
 
-    # Report results
     if result.new:
         print(f"New ({len(result.new)}):")
         for title in result.new:
@@ -93,7 +89,6 @@ def cmd_sync(args: argparse.Namespace) -> int:
         print(f"\nWould sync {len(result.new)} new, {len(result.updated)} updated")
         return 0
 
-    # Commit changes
     total = len(result.new) + len(result.updated)
     msg_parts = []
     if result.new:
@@ -101,7 +96,7 @@ def cmd_sync(args: argparse.Namespace) -> int:
     if result.updated:
         msg_parts.append(f"{len(result.updated)} updated")
 
-    commit_msg = f"Sync: {', '.join(msg_parts)} meeting{'s' if total != 1 else ''}"
+    commit_msg = f"sync: {', '.join(msg_parts)} meeting{'s' if total != 1 else ''}"
 
     commit_hash = commit(repo_root, commit_msg)
 
@@ -132,7 +127,6 @@ def cmd_status(args: argparse.Namespace) -> int:
     else:
         print("Git status: clean")
 
-    # Check what would sync
     print("\nChecking for updates...")
 
     try:
@@ -173,22 +167,14 @@ def main() -> int:
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # init
-    init_parser = subparsers.add_parser(
-        "init",
-        help="Initialize a new trailmix repo",
-    )
+    init_parser = subparsers.add_parser("init", help="Initialize a new trailmix repo")
     init_parser.add_argument(
         "path",
         nargs="?",
         help="Directory to initialize (default: current directory)",
     )
 
-    # sync
-    sync_parser = subparsers.add_parser(
-        "sync",
-        help="Sync Granola meetings to the repo",
-    )
+    sync_parser = subparsers.add_parser("sync", help="Sync Granola meetings")
     sync_parser.add_argument(
         "-n",
         "--dry-run",
@@ -196,11 +182,7 @@ def main() -> int:
         help="Show what would be synced without making changes",
     )
 
-    # status
-    subparsers.add_parser(
-        "status",
-        help="Show sync status",
-    )
+    subparsers.add_parser("status", help="Show sync status")
 
     args = parser.parse_args()
 

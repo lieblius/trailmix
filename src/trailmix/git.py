@@ -63,17 +63,14 @@ def commit(repo_root: Path, message: str) -> str | None:
 
     stage_all(repo_root)
 
-    # Check if there are staged changes
-    result = subprocess.run(
+    staged_check = subprocess.run(
         ["git", "diff", "--cached", "--quiet"],
         cwd=repo_root,
     )
 
-    if result.returncode == 0:
-        # No staged changes
+    if staged_check.returncode == 0:
         return None
 
     run_git(repo_root, "commit", "-m", message)
 
-    # Get commit hash
     return run_git(repo_root, "rev-parse", "--short", "HEAD").strip()
