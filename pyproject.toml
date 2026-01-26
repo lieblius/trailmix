@@ -1,0 +1,17 @@
+[project]
+name = "trailmix"
+version = "0.1.0"
+description = "Sync Granola meeting notes to a git repo"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+trailmix = "trailmix.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/trailmix"]
