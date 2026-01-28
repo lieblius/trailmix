@@ -2,10 +2,23 @@
 
 Sync Granola meeting notes to a git repo.
 
+## Prerequisites
+
+- macOS
+- [Granola](https://granola.ai) installed and signed in
+- Python 3.11+
+- [uv](https://docs.astral.sh/uv/)
+
 ## Install
 
 ```bash
 uv tool install /path/to/trailmix
+```
+
+To update after changes:
+
+```bash
+uv tool install --force /path/to/trailmix
 ```
 
 ## Usage
@@ -29,7 +42,13 @@ Sync your Granola meetings (works from any directory):
 trailmix sync
 ```
 
-Check what would be synced:
+Preview what would be synced without making changes:
+
+```bash
+trailmix sync --dry-run
+```
+
+Check sync status:
 
 ```bash
 trailmix status
@@ -48,6 +67,8 @@ Config is stored at `~/.config/trailmix/config.toml`:
 ```toml
 meetings_dir = "/Users/you/meetings"
 ```
+
+Granola credentials are read automatically from `~/Library/Application Support/Granola/supabase.json` (created when you sign into Granola).
 
 ## Structure
 
