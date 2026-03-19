@@ -347,7 +347,12 @@ def sync(repo_root: Path, dry_run: bool = False) -> SyncResult:
 
     for doc in documents:
         doc_id = doc.get("id")
-        title = doc.get("title", "Untitled")
+        title = doc.get("title")
+
+        if not title:
+            print(f"  Skipping untitled meeting ({doc_id}) - name it in Granola first")
+            skipped += 1
+            continue
 
         if not doc_id or not needs_sync(doc, manifest):
             skipped += 1
