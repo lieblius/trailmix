@@ -17,7 +17,7 @@ just integration # Full init + sync dry-run against live API
 
 - Ruff for linting and formatting (line-length 88)
 - Type hints required, checked with `ty`
-- No dependencies except `tomli-w` (stdlib handles the rest)
+- Dependencies: `tomli-w`, `cryptography` (for Granola credential decryption)
 
 ## Architecture
 
@@ -32,8 +32,10 @@ src/trailmix/
 
 ## Granola API Notes
 
-- Credentials at `~/Library/Application Support/Granola/supabase.json`
-- Token path: `workos_tokens.access_token` (it's WorkOS auth despite the filename)
+- Auth: decrypts `supabase.json.enc` via Chromium OSCrypt (Keychain -> DEK -> AES-256-GCM)
+- Falls back to plain-text `supabase.json` if no encrypted file exists
+- Granola switched to encrypted storage (`encrypted_supabase_storage` flag) around May 2026
+- API returns HTTP 200 with `{"message": "Unsupported client"}` on bad auth (not 401)
 - `/v1/get-documents-delta` is deprecated - fetch all docs and diff locally using manifest
 - Calendar event `start` field can be string OR dict with `dateTime` key
 - Transcript `source`: `microphone` = user (Me), `system` = meeting audio (Them)
